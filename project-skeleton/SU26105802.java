@@ -1,6 +1,10 @@
 public class SU26105802 {
     public static void main(String[] args) {
-        char[] colors = { 'G', 'Y', 'R', 'B' };
+        // String[] colors = { "\u001B[32mG\u001B[0m", "\u001B[33mY\u001B[0m", "\u001B[31mR\u001B[0m",
+        //         "\u001B[34mB\u001B[0m" };
+
+        String[] colors = { "G", "Y", "R",
+                "B" };
 
         boolean validArguments = argumentsIsValid(args);
         if (!validArguments)
@@ -93,44 +97,31 @@ public class SU26105802 {
             // StdOut.println("We have entered the Game Loop!");
             updateBoard(board, m);
 
+            if (hasBlockade(board, k)) {
+                StdOut.println("Termination: Blockade!");
+                break;
+            }
+
             StdOut.print("Move: ");
             int move = StdIn.readInt();
 
-            if (move == 2)
-                break;
+            if (move == 0) {
+                StdOut.print("Row Number: ");
+                int row = StdIn.readInt();
 
-            StdOut.print("Row Number: ");
-            int row = StdIn.readInt();
+                StdOut.print("Column Number: ");
+                int col = StdIn.readInt();
 
-            StdOut.print("Column Number: ");
-            int col = StdIn.readInt();
-
-            StdOut.print("Color: ");
-            int color = StdIn.readInt();
-
-            if (move < 0 || move > 2) {
-                StdOut.println("Invalid move: Unkown Move!");
-                continue;
-            }
-
-            if(row < 0 || row > m || col < 0 || col > m){
-                StdOut.println("Invalid Move: Outside of board!");
-                continue;
-            }
-
-            if (move == 1) {
-                if (board[row][col].equals(". ")) {
-                    board[row][col] = colors[color] + " ";
-                    if (col <= m - 2)
-                        board[row][col + 1] = ". ";
-                } else {
-                    StdOut.println("Invalid Move: Cell is not open!");
+                if (!positionIsValid(col, row, m)) {
+                    StdOut.println("Invalid move: Out of bounds!");
+                    continue;
                 }
-            } else if (move == 0) {
+
                 board[row][col] = ". ";
-                    col++;
+                col++;
                 while (true) {
-                    if(col == m) break;
+                    if (col == m)
+                        break;
                     if (!board[row][col].equals("* ")) {
                         board[row][col] = "* ";
                         col++;
@@ -138,6 +129,43 @@ public class SU26105802 {
                         break;
                     }
                 }
+            } else if (move == 1) {
+                StdOut.print("Row Number: ");
+                int row = StdIn.readInt();
+
+                StdOut.print("Column Number: ");
+                int col = StdIn.readInt();
+
+                StdOut.print("Color: ");
+                int color = StdIn.readInt();
+
+                if (!positionIsValid(col, row, m)) {
+                    StdOut.println("Invalid move: Out of bounds!");
+                    continue;
+                }
+
+                if (color < 0 || color > n - 1) {
+                    StdOut.println("Invalid move: Unknown Color!");
+                    continue;
+                }
+
+                if (!board[row][col].equals(". ")) {
+                    StdOut.println("Invalid Move: Cell is not open!");
+                    continue;
+                }
+
+                board[row][col] = colors[color] + " ";
+                if (col <= m - 2)
+                    board[row][col + 1] = ". ";
+
+            } else if (move == 2) {
+                StdOut.println("Termination: User terminated game!");
+                break;
+            }
+
+            if (move < 0 || move > 2) {
+                StdOut.println("Invalid move: Unkown Move!");
+                continue;
             }
         }
 
@@ -168,7 +196,35 @@ public class SU26105802 {
             for (int c = 0; c < m; c++) {
                 StdOut.print(board[r][c]);
             }
-            StdOut.println();
         }
+    }
+
+    public static Boolean positionIsValid(int x, int y, int m) {
+        if (x < 0 || x > m - 1 || y < 0 || y > m - 1) {
+            return false;
+        }
+        return true;
+    }
+
+    public static boolean hasBlockade(String[][] board, int k) {
+        int m = board.length;
+
+        for (int c = 0; c < m; c++) {
+            int numSameColor = 1;
+            String currentColor = board[0][c];
+            for (int r = 1; r < m; r++) {
+                if (board[r][c].equals(currentColor)) {
+                    numSameColor++;
+                    if (numSameColor == k && !currentColor.equals(". ") && !currentColor.equals("* ")) {
+                        return true;
+                    }
+                } else {
+                    numSameColor = 1;
+                    currentColor = board[r][c];
+                }
+            }
+        }
+
+        return false;
     }
 }
