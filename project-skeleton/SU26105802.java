@@ -79,7 +79,7 @@ public class SU26105802 {
         StdOut.println("The dimension of your board is: " + m + "x" + m);
         StdOut.println("The length of a blockade is: " + k);
 
-        StdDraw.setCanvasSize(500,800);
+        StdDraw.setCanvasSize(500, 800);
         StdDraw.setXscale(0, 500);
         StdDraw.setYscale(0, 800);
         StdDraw.clear(StdDraw.BLACK);
@@ -119,9 +119,54 @@ public class SU26105802 {
         int cursorCol = 0;
         updateScreen(board, 0, 0);
 
-
         // Start of the game loop
         while (gameIsRunning) {
+            // Use the hasBlockade function to determine if a blockade has been formed
+            if (hasBlockade(board, k)) {
+                // If the hasBlockade function returns true, call the determineScore function to
+                // display the end of game messages
+                // Display appropriate termination message
+                if (guiIndicator == 0) {
+                    StdOut.println("Termination: Blockade!");
+                    int score = determineScore(board, moves);
+                    // Display the end game messages
+                    StdOut.printf("Score: %d", score);
+                    StdOut.print("%\n");
+                    StdOut.println("Moves: " + moves);
+                } else if (guiIndicator == 1) {
+                    int score = determineScore(board, moves);
+                    String[] messages = { "Termination: Blockade!", "Score: " + score + "%, Moves: " + moves };
+                    updateScreen(board, cursorRow, cursorCol, messages);
+                }
+
+                // Break out of the game loop, since a blockade has been formed, which
+                // terminates the game loop
+                break;
+            }
+
+            // Check if all the positions of the board have been filled
+            if (blocksPlaced == m * m) {
+                // If all positions of the board have been filled, call the determineScore
+                // function to display the end of game messages
+                // Display appropriate termination message
+                if (guiIndicator == 0) {
+                    StdOut.println("Termination: You have won!");
+                    int score = determineScore(board, moves);
+                    // Display the end game messages
+                    StdOut.printf("Score: %d", score);
+                    StdOut.print("%\n");
+                    StdOut.println("Moves: " + moves);
+                    determineScore(board, moves);
+                } else if (guiIndicator == 1) {
+                    int score = determineScore(board, moves);
+                    String[] messages = { "Termination: You have won!", "Score: " + score + "%, Moves: " + moves };
+                    updateScreen(board, cursorRow, cursorCol, messages);
+                }
+
+                // Break out of the game loop, since the game has been won
+                break;
+            }
+
             if (guiIndicator == 0) {
                 // If the dontUpdateBoard boolean is true, then set it to false
                 if (dontUpdateBoard) {
@@ -131,29 +176,6 @@ public class SU26105802 {
                 else {
                     // Call updateBoard function to redisplay the updated board
                     updateBoard(board, m);
-                }
-
-                // Use the hasBlockade function to determine if a blockade has been formed
-                if (hasBlockade(board, k)) {
-                    // If the hasBlockade function returns true, call the determineScore function to
-                    // display the end of game messages
-                    // Display appropriate termination message
-                    StdOut.println("Termination: Blockade!");
-                    determineScore(board, moves);
-                    // Break out of the game loop, since a blockade has been formed, which
-                    // terminates the game loop
-                    break;
-                }
-
-                // Check if all the positions of the board have been filled
-                if (blocksPlaced == m * m) {
-                    // If all positions of the board have been filled, call the determineScore
-                    // function to display the end of game messages
-                    // Display appropriate termination message
-                    StdOut.println("Termination: You have won!");
-                    determineScore(board, moves);
-                    // Break out of the game loop, since the game has been won
-                    break;
                 }
 
                 // Display a prompt, so that the player can enter the move he/she wants to make
@@ -310,41 +332,124 @@ public class SU26105802 {
                     continue;
                 }
             } else if (guiIndicator == 1) {
-                if(updateGUI){
+                if (updateGUI) {
                     int pauseTime = 125;
-                    if(StdDraw.isKeyPressed(87)){
-                        if(cursorRow == 0) cursorRow = board.length - 1;
-                        else cursorRow--;
+                    if (StdDraw.isKeyPressed(87)) {
+                        if (cursorRow == 0)
+                            cursorRow = board.length - 1;
+                        else
+                            cursorRow--;
                         updateScreen(board, cursorRow, cursorCol);
                         StdDraw.pause(pauseTime);
                     }
 
-                    if(StdDraw.isKeyPressed(83)){
-                        if(cursorRow == board.length - 1) cursorRow = 0;
-                        else cursorRow++;
+                    if (StdDraw.isKeyPressed(83)) {
+                        if (cursorRow == board.length - 1)
+                            cursorRow = 0;
+                        else
+                            cursorRow++;
                         updateScreen(board, cursorRow, cursorCol);
                         StdDraw.pause(pauseTime);
                     }
 
-                    if(StdDraw.isKeyPressed(65)){
-                        if(cursorCol == 0) cursorCol = board.length - 1;
-                        else cursorCol--;
+                    if (StdDraw.isKeyPressed(65)) {
+                        if (cursorCol == 0)
+                            cursorCol = board.length - 1;
+                        else
+                            cursorCol--;
                         updateScreen(board, cursorRow, cursorCol);
                         StdDraw.pause(pauseTime);
                     }
 
-                    if(StdDraw.isKeyPressed(68)){
-                        if(cursorCol == board.length - 1) cursorCol = 0;
-                        else cursorCol++;
+                    if (StdDraw.isKeyPressed(68)) {
+                        if (cursorCol == board.length - 1)
+                            cursorCol = 0;
+                        else
+                            cursorCol++;
                         updateScreen(board, cursorRow, cursorCol);
                         StdDraw.pause(pauseTime);
                     }
 
-                    if(StdDraw.isKeyPressed(68)){
-                        if(cursorCol == board.length - 1) cursorCol = 0;
-                        else cursorCol++;
+                    if (StdDraw.isKeyPressed(88)) {
+                        int row = cursorRow;
+                        int col = cursorCol;
+
+                        // Check if the position entered is either an empty or closed block
+                        if (board[row][col].equals(".") || board[row][col].equals("*")) {
+                            // If the position entered is either an empty or closed block, set
+                            // dontUpdateBoard to true, so that the board will not be redisplayed on the
+                            // next loop of the game loop
+                            dontUpdateBoard = true;
+                            // Display an Invalid move message
+                            String[] messages = { "Invalid move: Nothing to delete!" };
+                            updateScreen(board, cursorRow, cursorCol, messages);
+                            // Continue to next loop
+                            continue;
+                        }
+
+                        // Set the position selected to an open block
+                        board[row][col] = ".";
+                        // Increment the col variable, to move to the next block
+                        col++;
+                        // Decrement the blocksPlaced variable, since a placed block has been removed
+                        blocksPlaced--;
+
+                        // Enter an infinite loop
+                        while (true) {
+                            // If col is equal to m, that means it has reached the far right side of the
+                            // board, and therefore the look must be broken
+                            if (col == m)
+                                break;
+                            // Check if the current index is a closed block
+                            if (!board[row][col].equals("*")) {
+                                // Check if the current index is an empty block
+                                if (!board[row][col].equals("."))
+                                    // If the current index is neither empty nor closed, decrement blocksPlaced
+                                    blocksPlaced--;
+
+                                // Set the current index to the "*" character
+                                board[row][col] = "*";
+                                // Increment the col variable to move to the next block
+                                col++;
+                            } else {
+                                // Break if other conditionals are fail
+                                break;
+                            }
+                        }
+                        // Increment moves, since row deletion counts as one move
+                        moves++;
+                        // If move is 1, then continue accordingly
                         updateScreen(board, cursorRow, cursorCol);
                         StdDraw.pause(pauseTime);
+                    }
+
+                    for (int i = 0; i < n; i++) {
+                        if (StdDraw.isKeyPressed(48 + i)) {
+                            // Check if position selected is not empty
+                            if (!board[cursorRow][cursorCol].equals(".")) {
+                                // If position selected is not empty, set dontUpdateBoard to true
+                                dontUpdateBoard = true;
+                                // Display an Invalid move message
+                                String[] messages = { "Invalid move: Cell is not open!" };
+                                updateScreen(board, cursorRow, cursorCol, messages);
+                                StdDraw.pause(pauseTime);
+                                // Continue to next loop
+                                continue;
+                            }
+
+                            // Set the position selected by the player to the color selected by the player
+                            board[cursorRow][cursorCol] = colors[i];
+                            // If the position selected is not in the last column, set the block in the next
+                            // column to a "."
+                            if (cursorCol <= m - 2)
+                                board[cursorRow][cursorCol + 1] = ".";
+
+                            // Increment blocksPlaced, since one block has been placed, and moves
+                            blocksPlaced++;
+                            moves++;
+                            updateScreen(board, cursorRow, cursorCol);
+                            StdDraw.pause(pauseTime);
+                        }
                     }
                 }
             }
@@ -454,7 +559,7 @@ public class SU26105802 {
 
     // Void function that takes in two arguments, one 2D-String-array, and one
     // integer moves
-    public static void determineScore(String[][] board, int moves) {
+    public static int determineScore(String[][] board, int moves) {
         // Initialize the blocksPlaced variable to 0
         int blocksPlaced = 0;
         // Iterate through the board array, and increment blocksPlaced if the current
@@ -470,28 +575,77 @@ public class SU26105802 {
         // Calculate the score by dividing blocksPlaced by the number of positions in
         // the board, and then multiplying by 100
         double score = (blocksPlaced / Math.pow(board.length, 2)) * 100;
-        // Display the end game messages
-        StdOut.printf("Score: %.0f", score);
-        StdOut.print("%\n");
-        StdOut.println("Moves: " + moves);
+        return (int) score;
     }
 
-    public static void updateScreen(String[][] board, int x, int y){
+    public static void updateScreen(String[][] board, int x, int y) {
         double cellWidth = 400 / board.length;
 
         StdDraw.clear(StdDraw.BLACK);
 
-        for(int i = 0; i < board.length; i++){
-            for(int j = 0; j < board.length; j++){
-                if(x == j && y == i) {
-                    StdDraw.setPenColor(StdDraw.BOOK_RED);
-                    StdDraw.filledSquare((i * (cellWidth*1.15)) + cellWidth, 800 - (j * (cellWidth*1.15)) - cellWidth, cellWidth*1.3/2);
+        for (int i = 0; i < board.length; i++) {
+            for (int j = 0; j < board.length; j++) {
+                if (x == j && y == i) {
+                    StdDraw.setPenColor(StdDraw.RED);
+                    StdDraw.filledSquare((i * (cellWidth * 1.15)) + cellWidth,
+                            800 - (j * (cellWidth * 1.15)) - cellWidth, cellWidth * 1.3 / 2);
                 }
-                if(board[j][i].equals(".")) StdDraw.setPenColor(StdDraw.GRAY);
-                else if(board[j][i].equals("*")) StdDraw.setPenColor(StdDraw.WHITE);
-                StdDraw.filledSquare((i * (cellWidth*1.15)) + cellWidth, 800 - (j * (cellWidth*1.15)) - cellWidth, cellWidth/2);
+                if (board[j][i].equals("."))
+                    StdDraw.setPenColor(StdDraw.GRAY);
+                else if (board[j][i].equals("*"))
+                    StdDraw.setPenColor(StdDraw.WHITE);
+                else if (board[j][i].equals("G"))
+                    StdDraw.setPenColor(StdDraw.GREEN);
+                else if (board[j][i].equals("Y"))
+                    StdDraw.setPenColor(StdDraw.YELLOW);
+                else if (board[j][i].equals("R"))
+                    StdDraw.setPenColor(StdDraw.RED);
+                else if (board[j][i].equals("B"))
+                    StdDraw.setPenColor(StdDraw.BLUE);
+
+                StdDraw.filledSquare((i * (cellWidth * 1.15)) + cellWidth, 800 - (j * (cellWidth * 1.15)) - cellWidth,
+                        cellWidth / 2);
             }
         }
+
+        StdDraw.show();
+    }
+
+    public static void updateScreen(String[][] board, int x, int y, String[] messages) {
+        double cellWidth = 400 / board.length;
+
+        StdDraw.clear(StdDraw.BLACK);
+
+        for (int i = 0; i < board.length; i++) {
+            for (int j = 0; j < board.length; j++) {
+                if (x == j && y == i) {
+                    StdDraw.setPenColor(StdDraw.RED);
+                    StdDraw.filledSquare((i * (cellWidth * 1.15)) + cellWidth,
+                            800 - (j * (cellWidth * 1.15)) - cellWidth, cellWidth * 1.3 / 2);
+                }
+                if (board[j][i].equals("."))
+                    StdDraw.setPenColor(StdDraw.GRAY);
+                else if (board[j][i].equals("*"))
+                    StdDraw.setPenColor(StdDraw.WHITE);
+                else if (board[j][i].equals("G"))
+                    StdDraw.setPenColor(StdDraw.GREEN);
+                else if (board[j][i].equals("Y"))
+                    StdDraw.setPenColor(StdDraw.YELLOW);
+                else if (board[j][i].equals("R"))
+                    StdDraw.setPenColor(StdDraw.RED);
+                else if (board[j][i].equals("B"))
+                    StdDraw.setPenColor(StdDraw.BLUE);
+
+                StdDraw.filledSquare((i * (cellWidth * 1.15)) + cellWidth, 800 - (j * (cellWidth * 1.15)) - cellWidth,
+                        cellWidth / 2);
+            }
+        }
+
+        for (int i = 0; i < messages.length; i++) {
+            StdDraw.setPenColor(StdDraw.WHITE);
+            StdDraw.text(250, 200 - (i * 20), messages[i]);
+        }
+
         StdDraw.show();
     }
 }
