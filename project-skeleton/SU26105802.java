@@ -782,8 +782,8 @@ public class SU26105802 {
                 if (x == j && y == i) {
                     StdDraw.setPenColor(StdDraw.RED);
                     StdDraw.filledSquare(
-                            (i * (cellWidth * 1.1)) + (width - (board.length - 1) * (cellWidth * 1.12)) / 2,
-                            height - (j * (cellWidth * 1.15)) - (width - (board.length - 1) * (cellWidth * 1.12)) / 2,
+                            (i * (cellWidth * 1.1)) + (width - (board.length - 1) * (cellWidth * 1.1)) / 2,
+                            height - (j * (cellWidth * 1.1)) - (width - (board.length - 1) * (cellWidth * 1.1)) / 2,
                             cellWidth * 1.2 / 2);
                 }
                 if (board[j][i].equals("."))
