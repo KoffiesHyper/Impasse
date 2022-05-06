@@ -115,7 +115,7 @@ public class SU26105802 {
                     height = 900;
                     break;
                 case 4:
-                    width = 1000;
+                    width = 1200;
                     height = 1000;
                     break;
             }
@@ -131,13 +131,21 @@ public class SU26105802 {
         boolean deadEnd = false;
         boolean split = false;
 
+        boolean liftedMouse = true;
+
         // Start of the game loop
         while (gameIsRunning) {
+
+            if (gameMode == 2) {
+                automaticSolve(m, k, colors);
+                break;
+            }
             // Use the hasBlockade function to determine if a blockade has been formed
             if (hasBlockade(board, k)) {
                 // If the hasBlockade function returns true, call the determineScore function to
                 // display the end of game messages
                 // Display appropriate termination message
+                blockade = true;
                 if (guiIndicator == 0 && gameMode == 0) {
                     updateBoard(board, m);
                     StdOut.println("Termination: Blockade!");
@@ -148,7 +156,6 @@ public class SU26105802 {
                     StdOut.println("Moves: " + moves);
                     break;
                 }
-                blockade = true;
                 // Break out of the game loop, since a blockade has been formed, which
                 // terminates the game loop
             }
@@ -164,76 +171,75 @@ public class SU26105802 {
                 if (hasSplits(board)) {
                     split = true;
                 }
+            }
 
-                if (blockade || deadEnd || split) {
-                    int terminations = 0;
-                    String terminationMessage = "Termination: You have caused a ";
+            if (blockade || deadEnd || split) {
+                int terminations = 0;
+                String terminationMessage = "Termination: You have caused a ";
 
-                    if (blockade)
-                        terminations++;
-                    if (deadEnd)
-                        terminations++;
-                    if (split)
-                        terminations++;
+                if (blockade)
+                    terminations++;
+                if (deadEnd)
+                    terminations++;
+                if (split)
+                    terminations++;
 
-                    if (terminations == 1) {
+                if (terminations == 1) {
 
-                        terminationMessage += (blockade) ? "blockade!" : "";
-                        terminationMessage += (deadEnd) ? "dead end!" : "";
-                        terminationMessage += (split) ? "split!" : "";
-                    } else if (terminations == 2) {
-                        terminationMessage += (blockade) ? "blockade and a " : "";
-                        terminationMessage += (deadEnd) ? ((blockade) ? "dead end!" : "dead end and a ") : "";
-                        terminationMessage += (split) ? "split!" : "";
-                    } else if (terminations == 3) {
-                        terminationMessage += "blockade, a dead end, and a split!";
-                    }
-
-                    if (guiIndicator == 0) {
-                        updateBoard(board, m);
-                        StdOut.println(terminationMessage);
-                        int score = determineScore(board, moves);
-                        // Display the end game messages
-                        StdOut.printf("Score: %d", score);
-                        StdOut.print("%\n");
-                        StdOut.println("Moves: " + moves);
-                    } else if (guiIndicator == 1) {
-                        int score = determineScore(board, moves);
-                        String[] messages = { terminationMessage,
-                                "Score: " + score + "%, Moves: " + moves };
-                        updateScreen(board, cursorRow, cursorCol, width, height, messages);
-                    }
-                    playSound(-10, .15);
-                    playSound(-15, .15);
-                    playSound(-20, .3);
-                    break;
+                    terminationMessage += (blockade) ? "blockade!" : "";
+                    terminationMessage += (deadEnd) ? "dead end!" : "";
+                    terminationMessage += (split) ? "split!" : "";
+                } else if (terminations == 2) {
+                    terminationMessage += (blockade) ? "blockade and a " : "";
+                    terminationMessage += (deadEnd) ? ((blockade) ? "dead end!" : "dead end and a ") : "";
+                    terminationMessage += (split) ? "split!" : "";
+                } else if (terminations == 3) {
+                    terminationMessage += "blockade, a dead end, and a split!";
                 }
 
-                if (Impasse(board, k, colors, n)) {
-                    if (guiIndicator == 0) {
-                        updateBoard(board, m);
-                        StdOut.println("Termination: Impasse!");
-                        int score = determineScore(board, moves);
-                        // Display the end game messages
-                        StdOut.printf("Score: %d", score);
-                        StdOut.print("%\n");
-                        StdOut.println("Moves: " + moves);
-                    } else if (guiIndicator == 1) {
-                        int score = determineScore(board, moves);
-                        String[] messages = { "Termination: You have caused an Impasse!",
-                                "Score: " + score + "%, Moves: " + moves };
-                        updateScreen(board, cursorRow, cursorCol, width, height, messages);
-                    }
-                    playSound(-10, .15);
-                    playSound(-15, .15);
-                    playSound(-20, .3);
-
-                    // Break out of the game loop, since a split has been formed, which
-                    // terminates the game loop
-
-                    break;
+                if (guiIndicator == 0) {
+                    updateBoard(board, m);
+                    StdOut.println(terminationMessage);
+                    int score = determineScore(board, moves);
+                    // Display the end game messages
+                    StdOut.printf("Score: %d", score);
+                    StdOut.print("%\n");
+                    StdOut.println("Moves: " + moves);
+                } else if (guiIndicator == 1) {
+                    int score = determineScore(board, moves);
+                    String[] messages = { terminationMessage,
+                            "Score: " + score + "%, Moves: " + moves };
+                    updateScreen(board, cursorRow, cursorCol, width, height, messages);
                 }
+                playSound(-10, .15);
+                playSound(-15, .15);
+                playSound(-20, .3);
+                break;
+            }
 
+            if (Impasse(board, k, colors, n) && gameMode == 1) {
+                if (guiIndicator == 0) {
+                    updateBoard(board, m);
+                    StdOut.println("Termination: Impasse!");
+                    int score = determineScore(board, moves);
+                    // Display the end game messages
+                    StdOut.printf("Score: %d", score);
+                    StdOut.print("%\n");
+                    StdOut.println("Moves: " + moves);
+                } else if (guiIndicator == 1) {
+                    int score = determineScore(board, moves);
+                    String[] messages = { "Termination: You have caused an Impasse!",
+                            "Score: " + score + "%, Moves: " + moves };
+                    updateScreen(board, cursorRow, cursorCol, width, height, messages);
+                }
+                playSound(-10, .15);
+                playSound(-15, .15);
+                playSound(-20, .3);
+
+                // Break out of the game loop, since a split has been formed, which
+                // terminates the game loop
+
+                break;
             }
 
             // Check if all the positions of the board have been filled
@@ -432,6 +438,89 @@ public class SU26105802 {
                 }
             } else if (guiIndicator == 1) {
                 int pauseTime = 200;
+
+                if (StdDraw.isMousePressed() && liftedMouse) {
+                    double X = StdDraw.mouseX();
+                    double Y = StdDraw.mouseY();
+                    double cellWidth = (width * 0.88) / board.length;
+                    if (width == 1200)
+                        cellWidth = (width * 0.85) / board.length;
+
+                    for (int i = 0; i < board.length; i++) {
+                        for (int j = 0; j < board.length; j++) {
+                            double x0 = (i * (cellWidth * 1.1))
+                                    + (width - (board.length - 1) * (cellWidth * 1.1)) / 2
+                                    - cellWidth / 2;
+                            double x1 = (i * (cellWidth * 1.1))
+                                    + (width - (board.length - 1) * (cellWidth * 1.1)) / 2
+                                    + cellWidth / 2;
+                            double y0 = height - (j * (cellWidth * 1.1))
+                                    - (width - (board.length - 1) * (cellWidth * 1.1)) / 2 - cellWidth / 2;
+                            double y1 = height - (j * (cellWidth * 1.1))
+                                    - (width - (board.length - 1) * (cellWidth * 1.1)) / 2 + cellWidth / 2;
+
+                            if (n == 4) {
+                                x0 = (i * ((cellWidth * 0.95) * 1.01))
+                                        + (width - (board.length - 1) * (cellWidth * 1)) / 2
+                                        - cellWidth / 2;
+                                x1 = (i * ((cellWidth * 0.95) * 1.01))
+                                        + (width - (board.length - 1) * (cellWidth * 1)) / 2
+                                        + cellWidth / 2;
+                                y0 = ((width == 1200) ? height + 85 : height) - (j * ((cellWidth * 0.95) * 1.01))
+                                        - (width - (board.length - 1) * (cellWidth * 1)) / 2 - cellWidth / 2;
+                                y1 = ((width == 1200) ? height + 85 : height) - (j * ((cellWidth * 0.95) * 1.01))
+                                        - (width - (board.length - 1) * (cellWidth * 1)) / 2 + cellWidth / 2;
+                            }
+
+                            if ((X >= x0 && X <= x1) && (Y >= y0 && Y <= y1)) {
+                                cursorRow = j;
+                                cursorCol = i;
+                                updateScreen(board, cursorRow, cursorCol, width, height);
+
+                                int c = 0;
+                                boolean hold = false;
+
+                                if (!board[j][i].equals(".")) {
+                                    String[] messages = { "Invalid move: Cell is not open!" };
+                                    updateScreen(board, cursorRow, cursorCol, width, height, messages);
+                                    break;
+                                }
+
+                                liftedMouse = false;
+
+                                while (StdDraw.isMousePressed() && ((X >= x0 && X <= x1) && (Y >= y0 && Y <= y1))) {
+                                    hold = true;
+                                    board[j][i] = colors[c];
+                                    if (i < board.length - 1)
+                                        board[j][i + 1] = ".";
+
+                                    if (c == n - 1)
+                                        c = 0;
+                                    else
+                                        c++;
+                                    updateScreen(board, cursorRow, cursorCol, width, height);
+                                    StdDraw.pause(pauseTime * 2);
+                                    X = StdDraw.mouseX();
+                                    Y = StdDraw.mouseY();
+                                }
+
+                                if (hold) {
+                                    blocksPlaced++;
+                                    moves++;
+                                }
+
+                                break;
+                            }
+                        }
+
+                        if (!liftedMouse)
+                            break;
+                    }
+                }
+
+                if (!StdDraw.isMousePressed())
+                    liftedMouse = true;
+
                 if (StdDraw.isKeyPressed(87)) {
                     if (cursorRow == 0)
                         cursorRow = board.length - 1;
@@ -524,7 +613,9 @@ public class SU26105802 {
                 }
 
                 if (StdDraw.isKeyPressed(81)) {
-                    String[] messages = { "Termination: User terminated game!" };
+                    int score = determineScore(board, moves);
+                    String[] messages = { "Termination: User terminated game!",
+                            "Score: " + score + "%, Moves: " + moves };
                     updateScreen(board, cursorRow, cursorCol, width, height, messages);
                     break;
                 }
@@ -593,7 +684,7 @@ public class SU26105802 {
     public static Boolean argumentsIsSupported(int gameMode, int guiIndicator, int n, int k) {
         // The four arguments are checked, to see if they are inside the range of
         // supported values
-        if ((gameMode > 1 && gameMode <= 2)) {
+        if ((gameMode > 2)) {
             // If one of the four arguments are not supported, a message is displayed and
             // the function returns false
             StdOut.println("Functionality currently not supported");
@@ -737,18 +828,33 @@ public class SU26105802 {
     }
 
     public static void updateScreen(String[][] board, int x, int y, int width, int height) {
-        double cellWidth = (width * 0.82) / board.length;
+        double cellWidth = (width * 0.88) / board.length;
+        if (width == 1200)
+            cellWidth = (width * 0.85) / board.length;
 
         StdDraw.clear(StdDraw.BLACK);
 
         for (int i = 0; i < board.length; i++) {
             for (int j = 0; j < board.length; j++) {
+                boolean currentPos = false;
                 if (x == j && y == i) {
-                    StdDraw.setPenColor(StdDraw.RED);
-                    StdDraw.filledSquare(
-                            (i * (cellWidth * 1.1)) + (width - (board.length - 1) * (cellWidth * 1.1)) / 2,
-                            height - (j * (cellWidth * 1.1)) - (width - (board.length - 1) * (cellWidth * 1.1)) / 2,
-                            cellWidth * 1.2 / 2);
+                    if (width == 1200) {
+                        StdDraw.setPenColor(StdDraw.RED);
+                        StdDraw.filledSquare(
+                                (i * ((cellWidth * 0.95) * 1.01)) + (width - (board.length - 1) * (cellWidth * 1)) / 2,
+                                ((width == 1200) ? height + 85 : height) - (j * ((cellWidth * 0.95) * 1.01))
+                                        - (width - (board.length - 1) * (cellWidth * 1)) / 2,
+                                cellWidth * 1.2 / 2);
+                        currentPos = true;
+                    } else {
+                        StdDraw.setPenColor(StdDraw.RED);
+                        StdDraw.filledSquare(
+                                (i * (cellWidth * 1.1)) + (width - (board.length - 1) * (cellWidth * 1.1)) / 2,
+                                height - (j * (cellWidth * 1.1)) - (width - (board.length - 1) * (cellWidth * 1.1)) / 2,
+                                cellWidth * 1.2 / 2);
+                        currentPos = true;
+                    }
+
                 }
                 if (board[j][i].equals("."))
                     StdDraw.setPenColor(StdDraw.GRAY);
@@ -763,9 +869,18 @@ public class SU26105802 {
                 else if (board[j][i].equals("B"))
                     StdDraw.setPenColor(StdDraw.BLUE);
 
-                StdDraw.filledSquare((i * (cellWidth * 1.1)) + (width - (board.length - 1) * (cellWidth * 1.1)) / 2,
-                        height - (j * (cellWidth * 1.1)) - (width - (board.length - 1) * (cellWidth * 1.1)) / 2,
-                        cellWidth / 2);
+                if (width == 1200) {
+                    StdDraw.filledSquare(
+                            (i * ((cellWidth * 0.95) * 1.01)) + (width - (board.length - 1) * (cellWidth * 1)) / 2,
+                            ((width == 1200) ? height + 85 : height) - (j * ((cellWidth * 0.95) * 1.01))
+                                    - (width - (board.length - 1) * (cellWidth * 1)) / 2,
+                            (currentPos ? cellWidth * 0.8 : cellWidth * 0.95) / 2);
+                } else {
+                    StdDraw.filledSquare((i * (cellWidth * 1.1)) + (width - (board.length - 1) * (cellWidth * 1.1)) / 2,
+                            height - (j * (cellWidth * 1.1)) - (width - (board.length - 1) * (cellWidth * 1.1)) / 2,
+                            (currentPos ? cellWidth * 0.95 : cellWidth) / 2);
+                }
+
             }
         }
 
@@ -773,18 +888,33 @@ public class SU26105802 {
     }
 
     public static void updateScreen(String[][] board, int x, int y, int width, int height, String[] messages) {
-        double cellWidth = (width * 0.82) / board.length;
+        double cellWidth = (width * 0.88) / board.length;
+        if (width == 1200)
+            cellWidth = (width * 0.85) / board.length;
 
         StdDraw.clear(StdDraw.BLACK);
 
         for (int i = 0; i < board.length; i++) {
             for (int j = 0; j < board.length; j++) {
+                boolean currentPos = false;
                 if (x == j && y == i) {
-                    StdDraw.setPenColor(StdDraw.RED);
-                    StdDraw.filledSquare(
-                            (i * (cellWidth * 1.1)) + (width - (board.length - 1) * (cellWidth * 1.1)) / 2,
-                            height - (j * (cellWidth * 1.1)) - (width - (board.length - 1) * (cellWidth * 1.1)) / 2,
-                            cellWidth * 1.2 / 2);
+                    if (width == 1200) {
+                        StdDraw.setPenColor(StdDraw.RED);
+                        StdDraw.filledSquare(
+                                (i * ((cellWidth * 0.95) * 1.01)) + (width - (board.length - 1) * (cellWidth * 1)) / 2,
+                                ((width == 1200) ? height + 85 : height) - (j * ((cellWidth * 0.95) * 1.01))
+                                        - (width - (board.length - 1) * (cellWidth * 1)) / 2,
+                                cellWidth * 1.2 / 2);
+                        currentPos = true;
+                    } else {
+                        StdDraw.setPenColor(StdDraw.RED);
+                        StdDraw.filledSquare(
+                                (i * (cellWidth * 1.1)) + (width - (board.length - 1) * (cellWidth * 1.1)) / 2,
+                                height - (j * (cellWidth * 1.1)) - (width - (board.length - 1) * (cellWidth * 1.1)) / 2,
+                                cellWidth * 1.2 / 2);
+                        currentPos = true;
+                    }
+
                 }
                 if (board[j][i].equals("."))
                     StdDraw.setPenColor(StdDraw.GRAY);
@@ -799,15 +929,32 @@ public class SU26105802 {
                 else if (board[j][i].equals("B"))
                     StdDraw.setPenColor(StdDraw.BLUE);
 
-                StdDraw.filledSquare((i * (cellWidth * 1.1)) + (width - (board.length - 1) * (cellWidth * 1.1)) / 2,
-                        height - (j * (cellWidth * 1.1)) - (width - (board.length - 1) * (cellWidth * 1.1)) / 2,
-                        cellWidth / 2);
+                if (width == 1200) {
+                    StdDraw.filledSquare(
+                            (i * ((cellWidth * 0.95) * 1.01)) + (width - (board.length - 1) * (cellWidth * 1)) / 2,
+                            ((width == 1200) ? height + 85 : height) - (j * ((cellWidth * 0.95) * 1.01))
+                                    - (width - (board.length - 1) * (cellWidth * 1)) / 2,
+                            (currentPos ? cellWidth * 0.8 : cellWidth * 0.95) / 2);
+                } else {
+                    StdDraw.filledSquare((i * (cellWidth * 1.1)) + (width - (board.length - 1) * (cellWidth * 1.1)) / 2,
+                            height - (j * (cellWidth * 1.1)) - (width - (board.length - 1) * (cellWidth * 1.1)) / 2,
+                            (currentPos ? cellWidth * 0.95 : cellWidth) / 2);
+                }
             }
         }
 
+        StdDraw.setPenColor(StdDraw.RED);
+        if (messages.length > 1) {
+            StdDraw.setPenColor(StdDraw.RED);
+            StdDraw.filledRectangle(width / 2, 50, 160, 35);
+        } else {
+            StdDraw.setPenColor(StdDraw.RED);
+            StdDraw.filledRectangle(width / 2, 60, 160, 35);
+        }
+        StdDraw.setPenColor();
         for (int i = 0; i < messages.length; i++) {
             StdDraw.setPenColor(StdDraw.WHITE);
-            StdDraw.text(width / 2, 75 - (i * 20), messages[i]);
+            StdDraw.text(width / 2, 60 - (i * 20), messages[i]);
         }
 
         StdDraw.show();
@@ -860,5 +1007,71 @@ public class SU26105802 {
         }
         boolean splits = hasSplits(board);
         return !blockade && !deadEnd && !splits;
+    }
+
+    public static void automaticSolve(int m, int k, String[] colors) {
+        boolean solutionFound = false;
+        String[][] attempt = new String[m][m];
+
+        boolean splitFound = false;
+        while (!solutionFound) {
+            splitFound = false;
+            for (int r = 0; r < m; r += 2) {
+                for (int c = 0; c < m; c++) {
+                    if (m == 8) {
+                        int color = (int) Math.round(Math.random());
+                        attempt[r][c] = colors[color];
+
+                        if (r >= m - 1)
+                            continue;
+
+                        if (color == 0) {
+                            attempt[r + 1][c] = colors[1];
+                        } else if (color == 1) {
+                            attempt[r + 1][c] = colors[0];
+                        }
+                    } else if (m == 30) {
+                        double random = Math.random();
+                        int color = 0;
+                        if (random <= 0.33)
+                            color = 0;
+                        if (random > 0.33 && random <= 0.67)
+                            color = 1;
+                        if (random > 0.67 && random <= 1)
+                            color = 2;
+
+                        attempt[r][c] = colors[color];
+
+                        if (r >= m - 1)
+                            continue;
+
+                        if (color == 0) {
+                            attempt[r + 1][c] = colors[1];
+                        } else if (color == 1) {
+                            attempt[r + 1][c] = colors[2];
+                        } else if (color == 2) {
+                            attempt[r + 1][c] = colors[0];
+                        }
+                    }
+
+                }
+
+                if (hasDeadEnds(attempt, r)) {
+                    splitFound = true;
+                    break;
+                }
+            }
+
+            if (splitFound)
+                continue;
+
+            boolean blockade = hasBlockade(attempt, k);
+            boolean split = hasSplits(attempt);
+
+            if (!blockade && !split) {
+            solutionFound = true;
+            updateScreen(attempt, 0, 0, ((m == 8) ? 500 : 800), ((m == 8) ? 600 : 900));
+            }
+        }
     }
 }
